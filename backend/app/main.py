@@ -1,4 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from sqlalchemy import text, select
+from sqlalchemy.orm import Session
+
+from app.database import get_db
+from app.models.patient import Patient
+from app.routes.patient import router as patient_router
+
 
 app = FastAPI(
     title="Clinical Serenity API",
@@ -6,6 +13,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.include_router(patient_router)
+
+# --------------------------------------------------
+# PATIENT ROUTES
+# --------------------------------------------------
+
+# --------------------------------------------------
+# ROOT
+# --------------------------------------------------
 
 @app.get("/")
 def root():
@@ -15,8 +31,80 @@ def root():
     }
 
 
+# --------------------------------------------------
+# HEALTH CHECK
+# --------------------------------------------------
+
 @app.get("/health")
 def health():
     return {
         "status": "healthy"
+    }
+
+
+# --------------------------------------------------
+# DATABASE TEST
+# --------------------------------------------------
+
+@app.get("/db-test")
+def db_test(db: Session = Depends(get_db)):
+    try:
+        result = db.execute(text("SELECT 1"))
+        value = result.scalar()
+
+        return {
+            "status": "success",
+            "database": "PostgreSQL",
+            "query_result": value
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
+# --------------------------------------------------
+# PATIENT COUNT
+# --------------------------------------------------
+
+@app.get("/patients/count")
+def patient_count(db: Session = Depends(get_db)):
+
+    count = db.query(Patient).count()
+
+    return {
+        "status": "success",
+        "patient_count": count
+    }
+
+
+# --------------------------------------------------
+# GET ALL PATIENTS
+# --------------------------------------------------
+
+@app.get("/patients")
+def get_patients(db: Session = Depends(get_db)):
+
+    result = db.execute(
+        select(Patient)
+    )
+
+    patients = result.scalars().all()
+
+    return {
+        "status": "success",
+        "count": len(patients),
+        "patients": [
+            {
+                "id": patient.id,
+                "patient_id": patient.patient_id,
+                "full_name": patient.full_name,
+                "email": patient.email,
+                "mobile_number": patient.mobile_number,
+                "blood_group": patient.blood_group
+            }
+            for patient in patients
+        ]
     }
