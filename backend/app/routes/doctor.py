@@ -307,3 +307,90 @@ def doctor_login(
             )
         }
     }
+# =========================================================
+# DOCTOR DASHBOARD
+# =========================================================
+
+@router.get("/dashboard/{doctor_id}")
+def doctor_dashboard(
+    doctor_id: str,
+    db: Session = Depends(get_db)
+):
+
+    # -----------------------------------------------------
+    # Find doctor
+    # -----------------------------------------------------
+
+    doctor = db.query(Doctor).filter(
+        Doctor.doctor_id == doctor_id
+    ).first()
+
+    # -----------------------------------------------------
+    # Doctor not found
+    # -----------------------------------------------------
+
+    if not doctor:
+        raise HTTPException(
+            status_code=404,
+            detail="Doctor not found"
+        )
+
+    # -----------------------------------------------------
+    # Doctor must be approved
+    # -----------------------------------------------------
+
+    if doctor.verification_status != "approved":
+
+        return {
+            "status": doctor.verification_status,
+            "message": (
+                "Doctor dashboard is available "
+                "only after admin verification"
+            ),
+            "doctor": {
+                "doctor_id": doctor.doctor_id,
+                "full_name": doctor.full_name,
+                "email": doctor.email,
+                "verification_status":
+                    doctor.verification_status
+            }
+        }
+
+    # -----------------------------------------------------
+    # Approved doctor dashboard
+    # -----------------------------------------------------
+
+    return {
+        "status": "success",
+        "message": "Doctor dashboard loaded successfully",
+
+        "doctor": {
+            "id": doctor.id,
+            "doctor_id": doctor.doctor_id,
+            "full_name": doctor.full_name,
+            "email": doctor.email,
+            "mobile_number": doctor.mobile_number,
+            "medical_registration_number":
+                doctor.medical_registration_number,
+            "state_medical_council":
+                doctor.state_medical_council,
+            "specialization":
+                doctor.specialization,
+            "qualifications":
+                doctor.qualifications,
+            "years_of_experience":
+                doctor.years_of_experience,
+            "languages":
+                doctor.languages,
+            "bio":
+                doctor.bio,
+            "hospital_name":
+                doctor.hospital_name,
+            "address":
+                doctor.address,
+            "verification_status":
+                doctor.verification_status,
+            "verified_at":
+                doctor.verified_at
+        }
+    }

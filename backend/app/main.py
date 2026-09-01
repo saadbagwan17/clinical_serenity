@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends
+from app.routes.admin import router as admin_router
 from sqlalchemy import text, select
 from sqlalchemy.orm import Session
 
@@ -6,7 +7,7 @@ from app.database import get_db
 from app.models.patient import Patient
 from app.routes.patient import router as patient_router
 from app.routes.doctor import router as doctor_router
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Clinical Serenity API",
@@ -16,14 +17,16 @@ app = FastAPI(
 
 app.include_router(patient_router)
 app.include_router(doctor_router)
-# --------------------------------------------------
-# PATIENT ROUTES
-# --------------------------------------------------
+app.include_router(admin_router)
 
-# --------------------------------------------------
-# ROOT
-# --------------------------------------------------
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 def root():
     return {
@@ -32,9 +35,6 @@ def root():
     }
 
 
-# --------------------------------------------------
-# HEALTH CHECK
-# --------------------------------------------------
 
 @app.get("/health")
 def health():
