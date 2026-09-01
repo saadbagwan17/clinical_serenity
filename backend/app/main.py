@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.patient import Patient
 from app.routes.patient import router as patient_router
+from app.routes.doctor import router as doctor_router
 
 
 app = FastAPI(
@@ -14,7 +15,7 @@ app = FastAPI(
 )
 
 app.include_router(patient_router)
-
+app.include_router(doctor_router)
 # --------------------------------------------------
 # PATIENT ROUTES
 # --------------------------------------------------

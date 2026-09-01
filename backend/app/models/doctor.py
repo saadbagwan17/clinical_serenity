@@ -22,6 +22,10 @@ class Doctor(Base):
         nullable=False
     )
 
+    # -------------------------
+    # Account Information
+    # -------------------------
+
     full_name: Mapped[str] = mapped_column(
         String(150),
         nullable=False
@@ -46,6 +50,10 @@ class Doctor(Base):
         nullable=False
     )
 
+    # -------------------------
+    # Professional Information
+    # -------------------------
+
     medical_registration_number: Mapped[str] = mapped_column(
         String(100),
         unique=True,
@@ -53,8 +61,33 @@ class Doctor(Base):
         nullable=False
     )
 
+    state_medical_council: Mapped[str | None] = mapped_column(
+        String(150),
+        nullable=True
+    )
+
     specialization: Mapped[str | None] = mapped_column(
         String(150),
+        nullable=True
+    )
+
+    qualifications: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    years_of_experience: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True
+    )
+
+    languages: Mapped[str | None] = mapped_column(
+        String(300),
+        nullable=True
+    )
+
+    bio: Mapped[str | None] = mapped_column(
+        Text,
         nullable=True
     )
 
@@ -67,6 +100,10 @@ class Doctor(Base):
         Text,
         nullable=True
     )
+
+    # -------------------------
+    # Verification
+    # -------------------------
 
     verification_status: Mapped[str] = mapped_column(
         String(30),
