@@ -38,3 +38,4 @@ ios/Flutter/ephemeral/
 .DS_Store
 Thumbs.db
 
+backend/create_admin.py
